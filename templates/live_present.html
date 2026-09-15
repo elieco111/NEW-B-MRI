@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מצגת ספרינט Live - B-MRI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandDark: '#111111',
+                        brandBlue: '#3A5268',
+                        brandRed: '#E63946',
+                        brandGreen: '#A8D92E',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #111111;
+            color: #F8FAFC;
+            overflow: hidden;
+        }
+        .slide {
+            display: none;
+            height: 100vh;
+        }
+        .slide.active {
+            display: flex;
+        }
+    </style>
+</head>
+<body class="font-sans flex flex-col justify-between h-screen">
+    <!-- Navbar / Chrome -->
+    <header class="bg-black/40 border-b border-brandBlue/20 px-8 py-4 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-brandRed"></span>
+                <span class="w-8 h-[2px] bg-brandBlue"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-brandGreen"></span>
+            </div>
+            <span class="text-lg font-bold tracking-wider text-white">B-MRI CoreFocus™ Sprint</span>
+        </div>
+        <div class="bg-brandDark border border-brandBlue/30 px-4 py-1.5 rounded-full text-xs text-slate-400">
+            התחברות משתתפים: <span class="text-brandGreen font-bold" id="join-url"></span>
+        </div>
+    </header>
+
+    <!-- Slides Container -->
+    <div class="flex-grow flex items-center justify-center p-8">
+        <!-- Slide 1: Title -->
+        <div id="slide-1" class="slide active flex-col items-center justify-center text-center gap-6">
+            <h1 class="text-5xl font-extrabold text-white leading-tight">CoreFocus™ Sprint</h1>
+            <p class="text-2xl text-brandBlue font-medium">מעבר מ"רעש" ארגוני ל-1–3 החלטות ליבה לביצוע</p>
+            <div class="flex items-center gap-2 mt-4 text-slate-500 text-sm">
+                <span>אריאל בן-עמי</span>
+                <span>•</span>
+                <span>אלי כהן</span>
+            </div>
+        </div>
+
+        <!-- Slide 2: Challenge -->
+        <div id="slide-2" class="slide flex-col items-center justify-center text-center gap-6 max-w-4xl">
+            <h2 class="text-3xl font-bold text-white">האתגר הניהולי: עומס, אי-ודאות ועיכובים</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+                <div class="bg-brandDark border border-brandBlue/10 p-8 rounded-xl flex flex-col justify-center">
+                    <span class="text-6xl font-extrabold text-brandRed">70%-80%</span>
+                    <p class="text-slate-300 mt-3 text-sm">מהמנהלים מעידים על עיכוב בקבלת החלטות אסטרטגיות ועל קושי בזיקוק העיקר מהטפל</p>
+                </div>
+                <div class="bg-brandDark border border-brandBlue/10 p-8 rounded-xl flex flex-col justify-center">
+                    <span class="text-6xl font-extrabold text-brandRed">21%</span>
+                    <p class="text-slate-300 mt-3 text-sm">בלבד מהמנהלים דיווחו שהאסטרטגיות שלהם עברו את מבחני האסטרטגיה המעשיים (מקינזי)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: CoreMap (Interactive Voting) -->
+        <div id="slide-3" class="slide flex-col items-center justify-center text-center gap-4 w-full max-w-5xl">
+            <h2 class="text-3xl font-bold text-white">CoreMap™ — איפה עוצמת ה"רעש" אצלכם?</h2>
+            <p class="text-slate-400 text-sm mb-4">המנהלים מתבקשים להצביע כעת במכשירי הנייד שלהם</p>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
+                {% for label in ["הנהלה", "שיווק", "מכירות", "תפעול", "כספים", "משאבי אנוש", "טכנולוגיה", "שירות לקוחות"] %}
+                <div class="bg-brandDark border border-brandBlue/20 p-4 rounded-xl flex flex-col justify-between h-32 relative overflow-hidden">
+                    <span class="text-sm font-bold text-slate-300 z-10">{{ label }}</span>
+                    <span class="text-3xl font-extrabold text-brandRed z-10" id="count-{{ label }}">0</span>
+                    <div class="absolute bottom-0 left-0 right-0 bg-brandRed/10 transition-all duration-500" style="height: 0%" id="bar-{{ label }}"></div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Slide 4: 3 Decisions -->
+        <div id="slide-4" class="slide flex-col items-center justify-center text-center gap-6 max-w-3xl">
+            <h2 class="text-4xl font-extrabold text-brandRed">3 ההחלטות שעל השולחן</h2>
+            <p class="text-xl text-slate-300 leading-relaxed mt-4">
+                "אילו 3 החלטות ליבה מעסיקות אותך כיום וטרם הוכרעו? מה מונע מהן להפוך לביצוע? ומהו המחיר של אי-הכרעה עבור הארגון כיום?"
+            </p>
+        </div>
+
+        <!-- Slide 5: The Engine comparison -->
+        <div id="slide-5" class="slide flex-col items-center justify-center text-center gap-6 w-full max-w-4xl">
+            <h2 class="text-3xl font-bold text-white">המנוע של B-MRI לעומת ייעוץ מסורתי</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full mt-6">
+                <div class="bg-brandDark border border-brandBlue/15 p-6 rounded-xl text-right">
+                    <h3 class="text-lg font-bold text-slate-400 border-b border-brandBlue/10 pb-2 mb-4">ייעוץ מסורתי</h3>
+                    <ul class="text-xs text-slate-400 flex flex-col gap-3">
+                        <li>• תהליכים ארוכים של חודשים</li>
+                        <li>• מאות שקפים ומצגות תיאורטיות</li>
+                        <li>• אובדן מומנטום ניהולי בארגון</li>
+                    </ul>
+                </div>
+                <div class="bg-brandDark border border-brandRed/30 p-6 rounded-xl text-right">
+                    <h3 class="text-lg font-bold text-brandRed border-b border-brandRed/20 pb-2 mb-4">CoreFocus™ Sprint</h3>
+                    <ul class="text-xs text-slate-200 flex flex-col gap-3">
+                        <li>• ספרינט ממוקד וקצר (עד שבועיים)</li>
+                        <li>• זיקוק שיטתי ל-1-3 מהלכי ליבה</li>
+                        <li>• תוכנית ביצוע 30/60/90 מוכנה מייד</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Execution Roadmap -->
+        <div id="slide-6" class="slide flex-col items-center justify-center text-center gap-6 max-w-2xl">
+            <h2 class="text-3xl font-bold text-white">תוצרים מוחשיים ומהדיים</h2>
+            <div class="flex flex-col gap-4 text-right w-full mt-6">
+                <div class="bg-brandDark border border-brandBlue/20 p-4 rounded-lg flex items-center gap-4">
+                    <span class="text-2xl">🎯</span>
+                    <div>
+                        <h4 class="font-bold text-white">בהירות אסטרטגית</h4>
+                        <p class="text-xs text-slate-400 mt-0.5">מיפוי מדויק של חסימות והזדמנויות</p>
+                    </div>
+                </div>
+                <div class="bg-brandDark border border-brandBlue/20 p-4 rounded-lg flex items-center gap-4">
+                    <span class="text-2xl">📈</span>
+                    <div>
+                        <h4 class="font-bold text-white">תעדוף ממוקד</h4>
+                        <p class="text-xs text-slate-400 mt-0.5">מנוע שקלול ממוחשב שמנקה רעשים</p>
+                    </div>
+                </div>
+                <div class="bg-brandDark border border-brandBlue/20 p-4 rounded-lg flex items-center gap-4">
+                    <span class="text-2xl">✅</span>
+                    <div>
+                        <h4 class="font-bold text-white">ביטחון ניהולי וביצוע</h4>
+                        <p class="text-xs text-slate-400 mt-0.5">תוכנית 30/60/90 שלמה ללא מצגות שווא</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls / Footer -->
+    <footer class="bg-black/60 border-t border-brandBlue/20 px-8 py-4 flex justify-between items-center">
+        <button onclick="prevSlide()" class="bg-brandBlue hover:bg-brandBlue/80 text-white text-xs px-4 py-2 rounded transition">← הקודם</button>
+        <div class="text-xs text-slate-500">שקף <span id="slide-num">1</span> מתוך 6</div>
+        <button onclick="nextSlide()" class="bg-brandRed hover:bg-brandRed/90 text-white text-xs px-4 py-2 rounded transition">הבא ←</button>
+    </footer>
+
+    <script>
+        let currentSlideIdx = 1;
+        const totalSlides = 6;
+        let ws;
+
+        // Auto-detect host URL
+        const host = window.location.host;
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        document.getElementById('join-url').innerText = window.location.origin + "/live/join";
+
+        function connectWS() {
+            ws = new WebSocket(`${protocol}//${host}/ws`);
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.type === 'vote_update') {
+                    updateVotesDisplay(data.votes);
+                }
+            };
+            ws.onclose = () => {
+                setTimeout(connectWS, 2000);
+            };
+        }
+
+        function updateVotesDisplay(votes) {
+            // Reset counts
+            const labels = ["הנהלה", "שיווק", "מכירות", "תפעול", "כספים", "משאבי אנוש", "טכנולוגיה", "שירות לקוחות"];
+            labels.forEach(label => {
+                document.getElementById(`count-${label}`).innerText = '0';
+                document.getElementById(`bar-${label}`).style.height = '0%';
+            });
+
+            // Calculate total votes
+            let total = 0;
+            for (let v in votes) {
+                total += votes[v];
+            }
+
+            // Update
+            for (let v in votes) {
+                if (document.getElementById(`count-${v}`)) {
+                    document.getElementById(`count-${v}`).innerText = votes[v];
+                    if (total > 0) {
+                        const pct = (votes[v] / total) * 100;
+                        document.getElementById(`bar-${v}`).style.height = `${pct}%`;
+                    }
+                }
+            }
+        }
+
+        function showSlide(idx) {
+            document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+            document.getElementById(`slide-${idx}`).classList.add('active');
+            document.getElementById('slide-num').innerText = idx;
+            currentSlideIdx = idx;
+
+            // Broadcast slide change over WebSocket
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'slide_change', slide: idx }));
+            }
+        }
+
+        function nextSlide() {
+            if (currentSlideIdx < totalSlides) {
+                showSlide(currentSlideIdx + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlideIdx > 1) {
+                showSlide(currentSlideIdx - 1);
+            }
+        }
+
+        connectWS();
+    </script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}לוח בקרה - B-MRI CoreFocus™{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-8">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-white">ניהול לקוחות וספרינטים</h1>
+            <p class="text-slate-400 mt-1">מערכת דיגיטלית לזיקוק 1-3 החלטות ליבה להנהלות ומנכ"לים</p>
+        </div>
+        <button onclick="document.getElementById('newClientModal').classList.remove('hidden')" class="bg-brandRed hover:bg-brandRed/90 text-white font-semibold px-5 py-2.5 rounded-lg transition shadow-lg">
+            + פתיחת תיק לקוח חדש
+        </button>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-brandBlue/10 border border-brandBlue/20 p-6 rounded-xl">
+            <h3 class="text-slate-400 text-sm font-medium">סך הכל לקוחות פעילים</h3>
+            <p class="text-4xl font-extrabold text-white mt-2">{{ clients|length }}</p>
+        </div>
+        <div class="bg-brandBlue/10 border border-brandBlue/20 p-6 rounded-xl">
+            <h3 class="text-slate-400 text-sm font-medium">שאלוני Pulse שהושלמו</h3>
+            <p class="text-4xl font-extrabold text-brandGreen mt-2">{{ total_completed_q }}</p>
+        </div>
+        <div class="bg-brandBlue/10 border border-brandBlue/20 p-6 rounded-xl">
+            <h3 class="text-slate-400 text-sm font-medium">החלטות ליבה שגובשו</h3>
+            <p class="text-4xl font-extrabold text-brandRed mt-2">{{ total_decisions }}</p>
+        </div>
+    </div>
+
+    <!-- Client Table -->
+    <div class="bg-black/30 border border-brandBlue/20 rounded-xl overflow-hidden">
+        <div class="px-6 py-4 border-b border-brandBlue/20 bg-black/10">
+            <h2 class="text-lg font-semibold text-white">תיקי לקוח קיימים</h2>
+        </div>
+        {% if not clients %}
+        <div class="p-8 text-center text-slate-400">
+            טרם נפתחו תיקי לקוח במערכת. לחץ על הכפתור למעלה כדי להתחיל ספרינט חדש.
+        </div>
+        {% else %}
+        <div class="overflow-x-auto">
+            <table class="w-full text-right text-sm">
+                <thead class="bg-black/40 text-slate-400 font-medium">
+                    <tr>
+                        <th class="px-6 py-3.5">שם החברה / הארגון</th>
+                        <th class="px-6 py-3.5">מגזר / תעשייה</th>
+                        <th class="px-6 py-3.5">תאריך פתיחה</th>
+                        <th class="px-6 py-3.5">פעולות</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-brandBlue/10">
+                    {% for client in clients %}
+                    <tr class="hover:bg-brandBlue/5 transition">
+                        <td class="px-6 py-4 font-bold text-white">{{ client.name }}</td>
+                        <td class="px-6 py-4 text-slate-300">{{ client.industry }}</td>
+                        <td class="px-6 py-4 text-slate-400">{{ client.created_at[:10] }}</td>
+                        <td class="px-6 py-4">
+                            <a href="/client/{{ client.id }}" class="text-brandGreen hover:underline font-semibold">כניסה לתיק לקוח ←</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="newClientModal" class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 hidden">
+    <div class="bg-[#242424] border border-brandBlue/40 rounded-xl max-w-md w-full p-6 shadow-2xl">
+        <h2 class="text-xl font-bold text-white mb-4">פתיחת תיק לקוח CoreFocus™</h2>
+        <form action="/client/create" method="POST" class="flex flex-col gap-4">
+            <div>
+                <label class="block text-slate-400 text-xs mb-1">שם החברה / הלקוח *</label>
+                <input type="text" name="name" required class="w-full bg-brandDark border border-brandBlue/30 rounded px-3 py-2 text-white focus:outline-none focus:border-brandRed">
+            </div>
+            <div>
+                <label class="block text-slate-400 text-xs mb-1">תעשייה / מגזר פעילות</label>
+                <input type="text" name="industry" class="w-full bg-brandDark border border-brandBlue/30 rounded px-3 py-2 text-white focus:outline-none focus:border-brandRed">
+            </div>
+            <div class="flex justify-end gap-3 mt-4">
+                <button type="button" onclick="document.getElementById('newClientModal').classList.add('hidden')" class="px-4 py-2 border border-brandBlue/20 rounded hover:bg-white/5 text-slate-300 transition">ביטול</button>
+                <button type="submit" class="px-4 py-2 bg-brandRed rounded text-white font-semibold hover:bg-brandRed/90 transition">צור תיק</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

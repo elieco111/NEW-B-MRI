@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>שלט הצבעה - B-MRI CoreFocus™</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandDark: '#1A1A1A',
+                        brandBlue: '#3A5268',
+                        brandRed: '#E63946',
+                        brandGreen: '#A8D92E',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #1A1A1A;
+            color: #F8FAFC;
+        }
+    </style>
+</head>
+<body class="font-sans flex flex-col justify-between h-screen p-6">
+    <!-- Top Header -->
+    <header class="text-center">
+        <h1 class="text-lg font-bold text-white">B-MRI שלט סנכרון</h1>
+        <p class="text-xs text-slate-400 mt-0.5">שלום, <span class="text-brandGreen font-bold">{{ name }}</span> ({{ role }})</p>
+    </header>
+
+    <!-- Dynamic Voting Screen -->
+    <main class="flex-grow flex items-center justify-center my-6">
+        <!-- Interactive Slide 3: CoreMap Voting -->
+        <div id="vote-screen-3" class="hidden flex-col items-center gap-4 w-full">
+            <h2 class="text-base font-bold text-slate-200 text-center">בחר את הפונקציה בעלת ה"רעש" הניהולי הגבוה ביותר כעת:</h2>
+            <div class="grid grid-cols-2 gap-3 w-full">
+                {% for label in ["הנהלה", "שיווק", "מכירות", "תפעול", "כספים", "משאבי אנוש", "טכנולוגיה", "שירות לקוחות"] %}
+                <button onclick="submitVote('{{ label }}')" id="btn-{{ label }}" class="bg-brandDark border border-brandBlue/25 hover:border-brandRed py-3 px-2 rounded-xl text-xs font-semibold text-slate-300 transition">
+                    {{ label }}
+                </button>
+                {% endfor %}
+            </div>
+            <p class="text-[10px] text-slate-500 mt-2">הקש על פונקציה כדי להצביע. תוכל לשנות הצבעה בכל עת.</p>
+        </div>
+
+        <!-- Standby Screen (for other slides) -->
+        <div id="standby-screen" class="flex flex-col items-center justify-center text-center gap-4 max-w-xs">
+            <span class="text-4xl animate-pulse">⏳</span>
+            <h2 class="text-base font-bold text-white">ממתין למנחה הספרינט...</h2>
+            <p class="text-xs text-slate-400">השלט שלך מסונכרן. המסך יתחלף אוטומטית ברגע שהמנחה יעבור לשקף אינטראקטיבי.</p>
+        </div>
+    </main>
+
+    <!-- Brand Signature -->
+    <footer class="text-center text-[10px] text-slate-600">
+        לזהות • לזקק • להכריע. B-MRI CoreFocus™
+    </footer>
+
+    <script>
+        const host = window.location.host;
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        let ws;
+        let selectedVote = null;
+
+        function connectWS() {
+            ws = new WebSocket(`${protocol}//${host}/ws`);
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.type === 'slide_change') {
+                    handleSlideChange(data.slide);
+                }
+            };
+            ws.onclose = () => {
+                setTimeout(connectWS, 2000);
+            };
+        }
+
+        function handleSlideChange(slideIdx) {
+            // Currently slide 3 is our main voting slide
+            if (slideIdx === 3) {
+                document.getElementById('vote-screen-3').classList.remove('hidden');
+                document.getElementById('vote-screen-3').classList.add('flex');
+                document.getElementById('standby-screen').classList.add('hidden');
+                document.getElementById('standby-screen').classList.remove('flex');
+            } else {
+                document.getElementById('vote-screen-3').classList.add('hidden');
+                document.getElementById('vote-screen-3').classList.remove('flex');
+                document.getElementById('standby-screen').classList.remove('hidden');
+                document.getElementById('standby-screen').classList.add('flex');
+            }
+        }
+
+        function submitVote(option) {
+            // Highlight button
+            const labels = ["הנהלה", "שיווק", "מכירות", "תפעול", "כספים", "משאבי אנוש", "טכנולוגיה", "שירות לקוחות"];
+            labels.forEach(label => {
+                document.getElementById(`btn-${label}`).classList.remove('border-brandRed', 'text-brandRed', 'bg-brandRed/5');
+                document.getElementById(`btn-${label}`).classList.add('border-brandBlue/25', 'text-slate-300');
+            });
+
+            document.getElementById(`btn-${option}`).classList.remove('border-brandBlue/25', 'text-slate-300');
+            document.getElementById(`btn-${option}`).classList.add('border-brandRed', 'text-brandRed', 'bg-brandRed/5');
+
+            selectedVote = option;
+
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'submit_vote',
+                    option: option,
+                    user: "{{ name }}"
+                }));
+            }
+        }
+
+        connectWS();
+    </script>
+</body>
+</html>

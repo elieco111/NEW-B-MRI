@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}B-MRI CoreFocus™ Platform{% endblock %}</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandDark: '#1A1A1A',
+                        brandBlue: '#3A5268',
+                        brandRed: '#E63946',
+                        brandGreen: '#A8D92E',
+                        bgSlate: '#0F172A',
+                    },
+                    fontFamily: {
+                        sans: ['Segoe UI', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #1A1A1A;
+            color: #F8FAFC;
+        }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body class="font-sans flex flex-col min-h-screen">
+    <!-- Header -->
+    <header class="bg-black/40 border-b border-brandBlue/30 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-width-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <!-- Visual Identity Anchor -->
+                <div class="flex items-center gap-1.5">
+                    <span class="w-3 h-3 rounded-full bg-brandRed"></span>
+                    <span class="w-12 h-[2px] bg-brandBlue"></span>
+                    <span class="w-3 h-3 rounded-full bg-brandGreen"></span>
+                </div>
+                <span class="text-xl font-bold tracking-wider text-white">B-MRI <span class="text-brandBlue">CoreFocus™</span></span>
+            </div>
+            <nav class="flex gap-6 text-sm font-medium text-slate-300">
+                <a href="/dashboard" class="hover:text-brandGreen transition">דשבורד לקוחות</a>
+                <a href="/live/present" class="hover:text-brandGreen transition" target="_blank">מצגת ספרינט Live</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-black/60 border-t border-brandBlue/20 py-6 text-center text-xs text-slate-500">
+        <p>© 2026 B-MRI. לזהות • לזקק • להכריע. כל הזכויות שמורות.</p>
+    </footer>
+</body>
+</html>

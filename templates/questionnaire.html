@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>שאלון אבחון Pulse - B-MRI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandDark: '#1A1A1A',
+                        brandBlue: '#3A5268',
+                        brandRed: '#E63946',
+                        brandGreen: '#A8D92E',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #1A1A1A;
+            color: #F8FAFC;
+        }
+    </style>
+</head>
+<body class="font-sans flex flex-col min-h-screen py-8 px-4 justify-center items-center">
+    <div class="max-w-xl w-full bg-black/30 border border-brandBlue/30 p-8 rounded-2xl shadow-2xl">
+        <div class="text-center mb-6">
+            <div class="flex justify-center items-center gap-1.5 mb-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-brandRed"></span>
+                <span class="w-8 h-[2px] bg-brandBlue"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-brandGreen"></span>
+            </div>
+            <h1 class="text-2xl font-bold text-white">אבחון Pulse דיגיטלי</h1>
+            <p class="text-slate-400 mt-1 text-sm">פונקציה: <span class="text-brandGreen font-semibold">{{ questionnaire.role }}</span></p>
+        </div>
+
+        {% if questionnaire.status == 'completed' %}
+        <div class="text-center py-8">
+            <span class="text-5xl">✅</span>
+            <h2 class="text-xl font-bold text-white mt-4">השאלון הושלם בהצלחה!</h2>
+            <p class="text-slate-400 mt-2">תשובותיך נקלטו במערכת B-MRI ויסייעו במיקוד מהלכי הליבה.</p>
+        </div>
+        {% else %}
+        <form action="/q/{{ questionnaire.token }}/submit" method="POST" class="flex flex-col gap-6">
+            <div>
+                <label class="block text-slate-300 text-sm font-semibold mb-2">1. מהו האתגר או צוואר הבקבוק המרכזי המעכב כיום את פונקציית {{ questionnaire.role }} בארגון?</label>
+                <textarea name="q1" required class="w-full bg-brandDark border border-brandBlue/30 rounded-lg p-3 text-white text-sm focus:outline-none focus:border-brandRed h-24" placeholder="תאר את הבעיה בפירוט..."></textarea>
+            </div>
+            <div>
+                <label class="block text-slate-300 text-sm font-semibold mb-2">2. אילו שלוש החלטות ליבה מעסיקות אותך כיום וטרם הוכרעו?</label>
+                <textarea name="q2" required class="w-full bg-brandDark border border-brandBlue/30 rounded-lg p-3 text-white text-sm focus:outline-none focus:border-brandRed h-24" placeholder="1. ... 
+2. ... 
+3. ..."></textarea>
+            </div>
+            <div>
+                <label class="block text-slate-300 text-sm font-semibold mb-2">3. מהו המחיר שהארגון משלם כרגע על היעדר ההכרעה בנושאים אלו?</label>
+                <textarea name="q3" required class="w-full bg-brandDark border border-brandBlue/30 rounded-lg p-3 text-white text-sm focus:outline-none focus:border-brandRed h-24" placeholder="השפעה על רווחיות, צמיחה, משאבים וכו'"></textarea>
+            </div>
+            <button type="submit" class="bg-brandRed hover:bg-brandRed/90 text-white font-semibold py-3 rounded-lg transition shadow-lg mt-2">שלח תשובות אבחון ←</button>
+        </form>
+        {% endif %}
+    </div>
+</body>
+</html>
